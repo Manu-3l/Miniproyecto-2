@@ -2,24 +2,29 @@ import java.awt.CardLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-public class Interfaz extends JFrame {
+public class Interfaz{
+
+    JFrame VentanaPrincipal = new JFrame();
 
     public Interfaz(){
-        setTitle("Ferretería App");
-        setSize(1000, 700);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
-        setLocationRelativeTo(null);
-        setResizable(false);
+        VentanaPrincipal.setTitle("Ferretería App");
+        VentanaPrincipal.setSize(1000, 700);
+        VentanaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        VentanaPrincipal.setVisible(true);
+        VentanaPrincipal.setLocationRelativeTo(null);
+        VentanaPrincipal.setResizable(false);
 
         Componentes();
     }
 
-    private void Componentes(){
+
+    public void Componentes(){
         JPanel panelBG = new JPanel();
         panelBG.setLayout(null);
         panelBG.setBackground(new java.awt.Color(255, 255, 255));
@@ -82,7 +87,7 @@ public class Interfaz extends JFrame {
         btnSalir.setBorder(null);
         btnSalir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                btnSalirFuncion(e);
+                Funciones.cerrarVentana(VentanaPrincipal);
             }
         });
 
@@ -102,17 +107,16 @@ public class Interfaz extends JFrame {
         //Etiquetas - Panel Inicio
         JLabel txtBienvenido = new JLabel();
         txtBienvenido.setText("BIENVENIDO");
-        txtBienvenido.setBounds(230, 80, 340, 120);
+        txtBienvenido.setBounds(230, 20, 340, 120);
         txtBienvenido.setFont(new Font("Times New Roman",Font.BOLD,50));
 
         JLabel txtMensaje1 = new JLabel();
         txtMensaje1.setText("App Ferreteria");
-        txtMensaje1.setBounds(320, 140, 160, 90);
+        txtMensaje1.setBounds(320, 70, 160, 90);
         txtMensaje1.setFont(new Font("Times New Roman",Font.PLAIN,26));
 
-        ImageIcon imagen1 = new ImageIcon("images/Logo1.png");
-        JLabel labelImagen1 = new JLabel(imagen1);
-        labelImagen1.setLocation(220, 180);
+        JLabel labelImagen1 = new JLabel(new ImageIcon("images/Logo1.png"));
+        labelImagen1.setBounds(140, 130, 512, 512);
 
 
         //Etiquetas - Panel Inventario
@@ -157,21 +161,34 @@ public class Interfaz extends JFrame {
 
 
         //Tabla para Inventario
-        String columnas[] = {"Nombre", "Descripcion", "Precio", "Cantidad"};
+        String columnas1[] = {"Nombre", "Descripcion", "Precio", "Cantidad"};
+        String columnas2[] = {"Material", "Caso de uso", "Herramienta"};
         DefaultTableModel tb1 = new DefaultTableModel();
-        tb1.setColumnIdentifiers(columnas);
-        JTable tablaInventario = new JTable();
+        DefaultTableModel tb2 = new DefaultTableModel();
+        tb1.setColumnIdentifiers(columnas1);
+        tb2.setColumnIdentifiers(columnas2);
+        JTable tablaInventario1 = new JTable();
+        JTable tablaInventario2 = new JTable();
         JScrollPane contenedorTb = new JScrollPane();
-        tablaInventario.setModel(tb1);
-        tablaInventario.setBounds(50, 70, 400, 520);
-        tablaInventario.getTableHeader().setResizingAllowed(false);
+        tablaInventario1.setModel(tb1);
+        tablaInventario1.setBounds(50, 70, 400, 520);
+        tablaInventario1.getTableHeader().setResizingAllowed(false);
+        tablaInventario1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                Funciones.seleccionarDatos(tablaInventario1, campoNombre, campoDesc, campoPrecio, campoCantidad);
+                Funciones.mostrarDatos(tb1, tb2, tablaInventario1);
+            }
+        });
+        tablaInventario2.setModel(tb2);
+        tb1.addTableModelListener(tablaInventario1);
         contenedorTb.setBounds(50, 70, 400, 520);
-        contenedorTb.setViewportView(tablaInventario);
+        contenedorTb.setViewportView(tablaInventario1);
 
 
         //Botones - Panel Inventario
         JButton btnAgregarProducto = new JButton();
-        btnAgregarProducto.setBounds(470, 540, 80, 50);
+        btnAgregarProducto.setBounds(470, 360, 80, 50);
         btnAgregarProducto.setBackground(new java.awt.Color(80, 40, 230));
         btnAgregarProducto.setText("Agregar");
         btnAgregarProducto.setFont(new Font("Times New Roman",Font.BOLD, 12));
@@ -179,21 +196,12 @@ public class Interfaz extends JFrame {
         btnAgregarProducto.setBorder(null);
         btnAgregarProducto.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                String Nombre = String.valueOf(campoNombre.getText());
-                String Descripcion = String.valueOf(campoDesc.getText());
-                Double Precio = Double.valueOf(campoPrecio.getText());
-                Double Cantidad = Double.valueOf(campoCantidad.getText());
-                campoNombre.setText("");
-                campoDesc.setText("");
-                campoPrecio.setText("");
-                campoCantidad.setText("");
-
-                tb1.addRow(new Object[]{Nombre, Descripcion, Precio, Cantidad});
+                Funciones.agregarDatos(tb1, tb2, campoNombre, campoDesc, campoPrecio, campoCantidad);
             }
         });
 
         JButton btnModificarProducto = new JButton();
-        btnModificarProducto.setBounds(570, 540, 80, 50);
+        btnModificarProducto.setBounds(570, 360, 80, 50);
         btnModificarProducto.setBackground(new java.awt.Color(80, 40, 230));
         btnModificarProducto.setText("Modificar");
         btnModificarProducto.setFont(new Font("Times New Roman",Font.BOLD, 12));
@@ -201,15 +209,12 @@ public class Interfaz extends JFrame {
         btnModificarProducto.setBorder(null);
         btnModificarProducto.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                tb1.setValueAt(campoNombre.getText(), tablaInventario.getSelectedRow(), 0);
-                tb1.setValueAt(campoDesc.getText(), tablaInventario.getSelectedRow(), 1);
-                tb1.setValueAt(campoPrecio.getText(), tablaInventario.getSelectedRow(), 2);
-                tb1.setValueAt(campoCantidad.getText(), tablaInventario.getSelectedRow(), 3);
+                Funciones.modificarDatos(tb1, tablaInventario1, campoNombre, campoDesc, campoPrecio, campoCantidad);
             }
         });
 
         JButton btnEliminarProducto = new JButton();
-        btnEliminarProducto.setBounds(670, 540, 80, 50);
+        btnEliminarProducto.setBounds(670, 360, 80, 50);
         btnEliminarProducto.setBackground(new java.awt.Color(80, 40, 230));
         btnEliminarProducto.setText("Eliminar");
         btnEliminarProducto.setFont(new Font("Times New Roman",Font.BOLD, 12));
@@ -217,13 +222,21 @@ public class Interfaz extends JFrame {
         btnEliminarProducto.setBorder(null);
         btnEliminarProducto.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                tb1.removeRow(tablaInventario.getSelectedRow());
+                Funciones.eliminarDatos(tb1, tb2, tablaInventario1, tablaInventario2, campoNombre, campoDesc, campoPrecio, campoCantidad);
             }
         });
 
+        JButton btnMostrarEstadisticas = new JButton();
+        btnMostrarEstadisticas.setBounds(550, 440, 120, 50);
+        btnMostrarEstadisticas.setBackground(new java.awt.Color(80, 40, 230));
+        btnMostrarEstadisticas.setText("Mostrar estadisticas");
+        btnMostrarEstadisticas.setFont(new Font("Times New Roman",Font.BOLD, 12));
+        btnMostrarEstadisticas.setForeground(new java.awt.Color(220, 220, 255));
+        btnMostrarEstadisticas.setBorder(null);
+
 
         //Añadir componentes a la ventana
-        this.getContentPane().add(panelBG);
+        VentanaPrincipal.getContentPane().add(panelBG);
         panelBG.add(panelPrincipal);
         panelBG.add(panelLateral);
         panelLateral.add(txtMenu);
@@ -249,10 +262,7 @@ public class Interfaz extends JFrame {
         panelInventario.add(btnAgregarProducto);
         panelInventario.add(btnModificarProducto);
         panelInventario.add(btnEliminarProducto);
-    }
-
-    private void btnSalirFuncion(ActionEvent e){
-        this.dispose();
+        panelInventario.add(btnMostrarEstadisticas);
     }
 
 }
