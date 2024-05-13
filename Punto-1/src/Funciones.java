@@ -2,6 +2,7 @@ import java.awt.Font;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.lang.NumberFormatException;
 
 public class Funciones {
 
@@ -28,6 +29,9 @@ public class Funciones {
             tb2.addRow(Datos2);
             JOptionPane.showMessageDialog(null, "Producto agregado con exito", "Aviso",1);
 
+        }catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "En los campos de precio y cantidad, solo es valido agregar numeros. Tampoco se pueden dejar vacios dichos campos", "Error ", 0);
+
         }catch (Exception e){
             JOptionPane.showMessageDialog(null, "Error"+ e.toString());
         }
@@ -36,10 +40,20 @@ public class Funciones {
 
     public static void modificarDatos(DefaultTableModel tb1, JTable tablaInventario, JTextField campoNombre, JTextField campoDesc, JTextField campoPrecio,  JTextField campoCantidad){
         try{
-            tb1.setValueAt(campoNombre.getText(), tablaInventario.getSelectedRow(), 0);
-            tb1.setValueAt(campoDesc.getText(), tablaInventario.getSelectedRow(), 1);
-            tb1.setValueAt(campoPrecio.getText(), tablaInventario.getSelectedRow(), 2);
-            tb1.setValueAt(campoCantidad.getText(), tablaInventario.getSelectedRow(), 3);
+            String nombre = String.valueOf(campoNombre.getText());
+            String descripcion = String.valueOf(campoDesc.getText());
+            Double precio = Double.valueOf(campoPrecio.getText());
+            Double cantidad = Double.valueOf(campoCantidad.getText());
+
+            tb1.setValueAt(nombre, tablaInventario.getSelectedRow(), 0);
+            tb1.setValueAt(descripcion, tablaInventario.getSelectedRow(), 1);
+            tb1.setValueAt(precio, tablaInventario.getSelectedRow(), 2);
+            tb1.setValueAt(cantidad, tablaInventario.getSelectedRow(), 3);
+
+            campoNombre.setText("");
+            campoDesc.setText("");
+            campoPrecio.setText("");
+            campoCantidad.setText("");
             JOptionPane.showMessageDialog(null, "Producto modificado con exito", "Aviso",1);
 
         }catch (Exception e){
@@ -173,5 +187,74 @@ public class Funciones {
     }
 
 
+    public static void MostrarEstadisticas(DefaultTableModel tb1, DefaultTableModel tb2, JTable tablaInventario1, JTable tablaInventario2){
+        try{
+        int row = tablaInventario1.getRowCount();
+
+        //Para calcular el precio de todos los productos
+        double total = 0;
+        for(int indice = 0; indice < row; indice ++){
+            Object precio = tablaInventario1.getValueAt(indice, 2);
+            Object cantidad = tablaInventario1.getValueAt(indice, 3);
+
+            double precioProducto = (double) precio;
+            double cantidadProducto = (double) cantidad;
+            double calculo = (precioProducto * cantidadProducto);
+            total = total + calculo;
+        }
+
+        //Para calcular los 2 productos con mas y los 2 con menos stock
+        Object[][] datosStock = new Object[row][2];
+            for (int indice = 0; indice < row; indice++) {
+                datosStock[indice][0] = tablaInventario1.getValueAt(indice, 0);
+                datosStock[indice][1] = tablaInventario1.getValueAt(indice, 3);
+            }
+
+            for (int i = 0; i < row - 1; i++) {
+                for (int j = 0; j < row - i - 1; j++) {
+                    if ((double) datosStock[j][1] < (double) datosStock[j + 1][1]) {
+                        Object[] temp = datosStock[j];
+                        datosStock[j] = datosStock[j + 1];
+                        datosStock[j + 1] = temp;
+                    }
+                }
+            }
+
+
+        //Para calcular la herramienta más usada
+        Object[] herramienta = new Object[row];
+        int maxFrecuencia = 0;
+        Object datoMasRepetido = null;
+        for(int indice = 0; indice < row; indice++){
+            herramienta[indice] = tablaInventario2.getValueAt(indice, 2);
+        }
+        for(int i = 0; i < row; i++){
+            Object datoActual = herramienta[i];
+            int frecuencia = 0;
+            for (int j = 0; j < row; j++) {
+                if (herramienta[j].equals(datoActual)) {
+                    frecuencia++;
+                }
+            }
+            if(frecuencia > maxFrecuencia) {
+                maxFrecuencia = frecuencia;
+                datoMasRepetido = datoActual;
+            }
+        }
+        String mensajePrecio = "El precio total de los productos es: " + total + "\n";
+        String mensajeMasStock = "Productos con más stock:\n";
+        String mensajeMenosStock = "Productos con menos stock:\n";
+        for (int i = 0; i < Math.min(2, row); i++) {
+            mensajeMasStock += datosStock[i][0] + ": " + datosStock[i][1] + "\n";
+            mensajeMenosStock += datosStock[row - 1 - i][0] + ": " + datosStock[row - 1 - i][1] + "\n";
+            }
+        String mensajeHerramienta = "Herramienta más usada: " + datoMasRepetido + "  \n";
+        String mensajeFinal = mensajePrecio + "\n" + mensajeMasStock + "\n" + mensajeMenosStock + "\n" + mensajeHerramienta + " " + "\n";
+        JOptionPane.showMessageDialog(null, mensajeFinal , "Estadisticas", 1);
+
+    }catch(Exception e){
+        JOptionPane.showMessageDialog(null, "Error"+ e.toString());
+    }
+}
 }
 

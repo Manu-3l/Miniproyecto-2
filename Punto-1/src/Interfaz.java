@@ -233,6 +233,11 @@ public class Interfaz{
         btnMostrarEstadisticas.setFont(new Font("Times New Roman",Font.BOLD, 12));
         btnMostrarEstadisticas.setForeground(new java.awt.Color(220, 220, 255));
         btnMostrarEstadisticas.setBorder(null);
+        btnMostrarEstadisticas.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                Funciones.MostrarEstadisticas(tb1, tb2, tablaInventario1, tablaInventario2);
+            }
+        });
 
 
         //Añadir componentes a la ventana
